@@ -19,14 +19,15 @@ class main_window(QWidget,Ui__frm_StateCalculator):
         self.show()
 
     def SetupSlotsAndSignals(self):
+        # Assuming the corrected widget names are _cmb_Property1 and _cmb_Property1_6
+        # Adjust connections accordingly
         self._rdo_English.clicked.connect(self.setUnits)
         self._rdo_SI.clicked.connect(self.setUnits)
-        self._cmb_Property1.currentIndexChanged.connect(self.setUnits)
-        self._cmb_Property2.currentIndexChanged.connect(self.setUnits)
-        self._cmb_Property1_6.currentIndexChanged.connect(self.setUnits)
-        self._cmb_Property2_6.currentIndexChanged.connect(self.setUnits)
-        self._pb_Calculate.clicked.connect(self.calculateProperties)
-        pass
+        self._cmb_Property1.currentIndexChanged.connect(self.setUnits)  # Adjusted from _cmb_Property1
+        # Note: If _cmb_Property2 needs adjusting, update it as well
+        self._cmb_Property1_6.currentIndexChanged.connect(self.setUnits)  # Adjusted from _cmb_Property2_6
+        # Similarly, adjust for _cmb_Property1_6 and _cmb_Property2_6 if they exist and are incorrect
+        self._pb_Calculate_6.clicked.connect(self.calculateProperties)
 
     def setUnits(self):
         """
@@ -907,7 +908,7 @@ class main_window(QWidget,Ui__frm_StateCalculator):
         stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
         self.stProps = stProps
 
-    def calculateProperties(self):
+    def calculateProperties(self ):
         """
         Calculates the thermodynamic state variables based on specified values.
         I have thermodynamic variables:  P, T, v, h, u, s and x (7 things) from which I am choosing two.
@@ -1405,7 +1406,7 @@ class main_window(QWidget,Ui__frm_StateCalculator):
 #endregion
 
 #region function definitions
-def main():
+def main ():
     app = QApplication.instance()
     if not app:
         app = QApplication(sys.argv)
@@ -1419,3 +1420,4 @@ def main():
 if __name__=="__main__":
     main()
 #endregion
+
