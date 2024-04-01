@@ -23,6 +23,8 @@ class main_window(QWidget,Ui__frm_StateCalculator):
         self._rdo_SI.clicked.connect(self.setUnits)
         self._cmb_Property1.currentIndexChanged.connect(self.setUnits)
         self._cmb_Property2.currentIndexChanged.connect(self.setUnits)
+        self._cmb_Property1_6.currentIndexChanged.connect(self.setUnits)
+        self._cmb_Property2_6.currentIndexChanged.connect(self.setUnits)
         self._pb_Calculate.clicked.connect(self.calculateProperties)
         pass
 
@@ -64,11 +66,11 @@ class main_window(QWidget,Ui__frm_StateCalculator):
             self.s_Units = "btu/lb*F"
             self.v_Units = "ft^3/lb"
 
-        #read selected Specified Properties from combo boxes
+        #read selected Specified Properties from combo boxes for State 1
         SpecifiedProperty1 = self._cmb_Property1.currentText()
         SpecifiedProperty2 = self._cmb_Property2.currentText()
         #read numerical values for selected properties
-        SP=[float(self._le_Property1.text()), float(self._le_Property2.text())]
+        SP=[float(self._le_Property1.text()), float(self._le_Property2_6.text())]
 
         #set units labels and convert values if needed
         if 'Pressure' in SpecifiedProperty1:
@@ -127,6 +129,72 @@ class main_window(QWidget,Ui__frm_StateCalculator):
 
         self._le_Property1.setText("{:0.3f}".format(SP[0]))
         self._le_Property2.setText("{:0.3f}".format(SP[1]))
+
+        #read selected Specified Properties from combo boxes for State 2
+        SpecifiedProperty1_6 = self._cmb_Property1_6.currentText()
+        SpecifiedProperty2_6 = self._cmb_Property2_6.currentText()
+        SP_6 = [float(self._le_Property1_6.text()), float(self._le_Property2_6.text())]
+
+        # Set units labels and convert values if needed for State 2 properties
+        if 'Pressure' in SpecifiedProperty1_6:
+            self._lbl_Property1_Units_6.setText(self.p_Units)
+            if UnitChange:
+                SP_6[0] = SP_6[0] * UC.psi_to_bar if SI else SP_6[0] * UC.bar_to_psi
+        elif 'Temperature' in SpecifiedProperty1_6:
+            self._lbl_Property1_Units_6.setText(self.t_Units)
+            if UnitChange:
+                SP_6[0] = UC.F_to_C(SP_6[0]) if SI else UC.C_to_F(SP_6[0])
+        # Continue with the remaining properties for State 2...
+        elif 'Energy' in SpecifiedProperty1_6:
+            self._lbl_Property1_Units_6.setText(self.u_Units)
+            if UnitChange:
+                SP_6[0] = SP_6[0] * UC.btuperlb_to_kJperkg if SI else SP_6[0] * UC.kJperkg_to_btuperlb
+        elif 'Enthalpy' in SpecifiedProperty1_6:
+            self._lbl_Property1_Units_6.setText(self.h_Units)
+            if UnitChange:
+                SP_6[0] = SP_6[0] * UC.btuperlb_to_kJperkg if SI else SP_6[0] * UC.kJperkg_to_btuperlb
+        elif 'Entropy' in SpecifiedProperty1_6:
+            self._lbl_Property1_Units_6.setText(self.s_Units)
+            if UnitChange:
+                SP_6[0] = SP_6[0] * UC.btuperlbF_to_kJperkgC if SI else SP_6[                                                                0] * UC.kJperkgC_to_btuperlbF
+        elif 'Volume' in SpecifiedProperty1_6:
+            self._lbl_Property1_Units_6.setText(self.v_Units)
+            if UnitChange:
+                SP_6[0] = SP_6[0] * UC.ft3perlb_to_m3perkg if SI else SP_6[0] * UC.m3perkg_to_ft3perlb
+        elif 'Quality' in SpecifiedProperty1_6:
+            self._lbl_Property1_Units_6.setText("")
+
+        # Repeat the above logic for the second property of State 2
+        if 'Pressure' in SpecifiedProperty2_6:
+            self._lbl_Property2_Units_6.setText(self.p_Units)
+            if UnitChange:
+                SP_6[1] = SP_6[1] * UC.psi_to_bar if SI else SP_6[1] * UC.bar_to_psi
+        elif 'Temperature' in SpecifiedProperty2_6:
+            self._lbl_Property2_Units_6.setText(self.t_Units)
+            if UnitChange:
+                SP_6[1] = UC.F_to_C(SP_6[1]) if SI else UC.C_to_F(SP_6[1])
+        elif 'Energy' in SpecifiedProperty2_6:
+            self._lbl_Property2_Units_6.setText(self.u_Units)
+            if UnitChange:
+                SP_6[1] = SP_6[1] * UC.btuperlb_to_kJperkg if SI else SP_6[1] * UC.kJperkg_to_btuperlb
+        elif 'Enthalpy' in SpecifiedProperty2_6:
+            self._lbl_Property2_Units_6.setText(self.h_Units)
+            if UnitChange:
+                SP_6[1] = SP_6[1] * UC.btuperlb_to_kJperkg if SI else SP_6[1] * UC.kJperkg_to_btuperlb
+        elif 'Entropy' in SpecifiedProperty2_6:
+            self._lbl_Property2_Units_6.setText(self.s_Units)
+            if UnitChange:
+                SP_6[1] = SP_6[1] * UC.btuperlbF_to_kJperkgC if SI else SP_6[                                                            1] * UC.kJperkgC_to_btuperlbF
+        elif 'Volume' in SpecifiedProperty2_6:
+            self._lbl_Property2_Units_6.setText(self.v_Units)
+            if UnitChange:
+                SP_6[1] = SP_6[1] * UC.ft3perlb_to_m3perkg if SI else SP_6[1] * UC.m3perkg_to_ft3perlb
+        elif 'Quality' in SpecifiedProperty2_6:
+            self._lbl_Property2_Units_6.setText("")
+
+        # Update the text fields with the converted values for State 2 properties
+        self._le_Property1_6.setText("{:0.3f}".format(SP_6[0]))
+        self._le_Property2_6.setText("{:0.3f}".format(SP_6[1]))
 
     def clamp(self, x, low, high):
         """
@@ -188,13 +256,14 @@ class main_window(QWidget,Ui__frm_StateCalculator):
 
     def makeLabel_1Phase(self):
         """
-        Given that I have T&P, find the other properties and make the label
+        Given two properties solve for the remaining five (21 different two property combinations)
         :return:
         """
+        #1
+        #finds the rest of the properties given pressure and temperature
         self._lbl_State.setText("Region = {:}".format(self.region))
         stProps = "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
-        stProps += "\nTemperature = {:0.3f} ({:}) [TSat={:0.3f} ({:})]".format(self.t, self.t_Units, self.tSat,
-                                                                               self.t_Units)
+        stProps += "\nTemperature = {:0.3f} ({:}) [TSat={:0.3f} ({:})]".format(self.t, self.t_Units, self.tSat,self.t_Units)
         self.u = self.steamTable.u_pt(self.p, self.t)
         self.h = self.steamTable.h_pt(self.p, self.t)
         self.s = self.steamTable.s_pt(self.p, self.t)
@@ -206,22 +275,637 @@ class main_window(QWidget,Ui__frm_StateCalculator):
         stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
         stProps += "\nQuality = {:0.3f}".format(self.x)
         self.stProps=stProps
+        #2
+        # Calculate other properties based on pressure and internal energy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        self.t = self.steamTable.t_pu(self.p, self.u)
+        self.h = self.steamTable.h_pu(self.p, self.u)
+        self.s = self.steamTable.s_pu(self.p, self.u)
+        self.v = self.steamTable.v_pu(self.p, self.u)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        #3
+        # Calculate other properties based on pressure and enthalpy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        self.t = self.steamTable.t_ph(self.p, self.h)
+        self.u = self.steamTable.u_ph(self.p, self.h)
+        self.s = self.steamTable.s_ph(self.p, self.h)
+        self.v = self.steamTable.v_ph(self.p, self.h)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        #4
+        # Calculate other properties based on pressure and entropy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.t = self.steamTable.t_ps(self.p, self.s)
+        self.u = self.steamTable.u_ps(self.p, self.s)
+        self.h = self.steamTable.h_ps(self.p, self.s)
+        self.v = self.steamTable.v_ps(self.p, self.s)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        #5
+        # Calculate other properties based on pressure and specific volume
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.t = self.steamTable.t_pv(self.p, self.v)
+        self.u = self.steamTable.u_pv(self.p, self.v)
+        self.h = self.steamTable.h_pv(self.p, self.v)
+        self.s = self.steamTable.s_pv(self.p, self.v)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.stProps = stProps
+        #6
+        # Calculate other properties based on pressure and quality
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nQuality = {:0.3f}".format(self.x)
+        self.t = self.steamTable.t_px(self.p, self.x)
+        self.u = self.steamTable.u_px(self.p, self.x)
+        self.h = self.steamTable.h_px(self.p, self.x)
+        self.s = self.steamTable.s_px(self.p, self.x)
+        self.v = self.steamTable.v_px(self.p, self.x)
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        #7
+        # Calculate other properties based on temperature and internal energy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        self.p = self.steamTable.p_ut(self.u, self.t)
+        self.h = self.steamTable.h_ut(self.u, self.t)
+        self.s = self.steamTable.s_ut(self.u, self.t)
+        self.v = self.steamTable.v_ut(self.u, self.t)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        #8
+        # Calculate other properties based on temperature and enthalpy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        self.p = self.steamTable.p_ht(self.h, self.t)
+        self.u = self.steamTable.u_ht(self.h, self.t)
+        self.s = self.steamTable.s_ht(self.h, self.t)
+        self.v = self.steamTable.v_ht(self.h, self.t)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        #9
+        # Calculate other properties based on temperature and entropy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.p = self.steamTable.p_st(self.s, self.t)
+        self.u = self.steamTable.u_st(self.s, self.t)
+        self.h = self.steamTable.h_st(self.s, self.t)
+        self.v = self.steamTable.v_st(self.s, self.t)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        #10
+        #finds other properties based on temperature and specific volume
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.p = self.steamTable.p_tv(self.t, self.v)
+        self.u = self.steamTable.u_tv(self.t, self.v)
+        self.h = self.steamTable.h_tv(self.t, self.v)
+        self.s = self.steamTable.s_tv(self.t, self.v)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.stProps = stProps
+        #11
+        # Calculate other properties based on temperature and quality
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nQuality = {:0.3f}".format(self.x)
+        self.p = self.steamTable.p_tx(self.t, self.x)
+        self.u = self.steamTable.u_tx(self.t, self.x)
+        self.h = self.steamTable.h_tx(self.t, self.x)
+        self.s = self.steamTable.s_tx(self.t, self.x)
+        self.v = self.steamTable.v_tx(self.t, self.x)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        #12
+        # Calculate other properties based on internal energy and enthalpy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        self.t = self.steamTable.t_uh(self.u, self.h)
+        self.p = self.steamTable.p_uh(self.u, self.h)
+        self.s = self.steamTable.s_uh(self.u, self.h)
+        self.v = self.steamTable.v_uh(self.u, self.h)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        #13
+        # Calculate other properties based on internal energy and entropy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.t = self.steamTable.t_us(self.u, self.s)
+        self.p = self.steamTable.p_us(self.u, self.s)
+        self.h = self.steamTable.h_us(self.u, self.s)
+        self.v = self.steamTable.v_us(self.u, self.s)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        #14
+        # Calculate other properties based on internal energy and specific volume
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.t = self.steamTable.t_uv(self.u, self.v)
+        self.p = self.steamTable.p_uv(self.u, self.v)
+        self.h = self.steamTable.h_uv(self.u, self.v)
+        self.s = self.steamTable.s_uv(self.u, self.v)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.stProps = stProps
+        #15
+        # Calculate other properties based on internal energy and quality
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nQuality = {:0.3f}".format(self.x)
+        self.t = self.steamTable.t_ux(self.u, self.x)
+        self.p = self.steamTable.p_ux(self.u, self.x)
+        self.h = self.steamTable.h_ux(self.u, self.x)
+        self.s = self.steamTable.s_ux(self.u, self.x)
+        self.v = self.steamTable.v_ux(self.u, self.x)
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        #16
+        # Calculate other properties based on enthalpy and entropy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.t = self.steamTable.t_hs(self.h, self.s)
+        self.p = self.steamTable.p_hs(self.h, self.s)
+        self.u = self.steamTable.u_hs(self.h, self.s)
+        self.v = self.steamTable.v_hs(self.h, self.s)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        #17
+        # Calculate other properties based on enthalpy and specific volume
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.t = self.steamTable.t_hv(self.h, self.v)
+        self.p = self.steamTable.p_hv(self.h, self.v)
+        self.u = self.steamTable.u_hv(self.h, self.v)
+        self.s = self.steamTable.s_hv(self.h, self.v)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.stProps = stProps
+        #18
+        # Calculate other properties based on enthalpy and quality
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nQuality = {:0.3f}".format(self.x)
+        self.t = self.steamTable.t_hx(self.h, self.x)
+        self.p = self.steamTable.p_hx(self.h, self.x)
+        self.u = self.steamTable.u_hx(self.h, self.x)
+        self.s = self.steamTable.s_hx(self.h, self.x)
+        self.v = self.steamTable.v_hx(self.h, self.x)
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        #19
+        # Calculate other properties based on entropy and specific volume
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.t = self.steamTable.t_sv(self.s, self.v)
+        self.p = self.steamTable.p_sv(self.s, self.v)
+        self.u = self.steamTable.u_sv(self.s, self.v)
+        self.h = self.steamTable.h_sv(self.s, self.v)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        self.stProps = stProps
+        #20
+        # Calculate other properties based on entropy and quality
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nQuality = {:0.3f}".format(self.x)
+        self.t = self.steamTable.t_sx(self.s, self.x)
+        self.p = self.steamTable.p_sx(self.s, self.x)
+        self.u = self.steamTable.u_sx(self.s, self.x)
+        self.h = self.steamTable.h_sx(self.s, self.x)
+        self.v = self.steamTable.v_sx(self.s, self.x)
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        #21
+        # Calculate other properties based on specific volume and quality
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        stProps += "\nQuality = {:0.3f}".format(self.x)
+        self.t = self.steamTable.t_vx(self.v, self.x)
+        self.p = self.steamTable.p_vx(self.v, self.x)
+        self.u = self.steamTable.u_vx(self.v, self.x)
+        self.h = self.steamTable.h_vx(self.v, self.x)
+        self.s = self.steamTable.s_vx(self.v, self.x)
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.stProps = stProps
+
 
     def makeLabel_2Phase(self):
         """
         Given P and x, find all other properties and make the label
+        Given 2 properties, find the remaining 5 and make a label
         :return:
         """
+        #1
         self._lbl_State.setText("Region = {:}".format(self.region))
         stProps = "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
-        stProps += "\nTemperature = {:0.3f} ({:}) [TSat={:0.3f} ({:})]".format(self.t, self.t_Units, self.tSat,
-                                                                               self.t_Units)
+        stProps += "\nTemperature = {:0.3f} ({:}) [TSat={:0.3f} ({:})]".format(self.t, self.t_Units, self.tSat,self.t_Units)
+
         stProps += "\nInternal Energy = u={:0.3f} ({:})".format(self.uf + self.x * self.ugf, self.u_Units)
         stProps += "\nEnthalpy = h={:0.3f} ({:})".format(self.hf + self.x * self.hgf, self.h_Units)
         stProps += "\nEntropy = s={:0.3f} ({:})".format(self.sf + self.x * self.sgf, self.s_Units)
         stProps += "\nSpecific Volume = v={:0.5f} ({:})".format(self.vf + self.x * self.vgf, self.v_Units)
         stProps += "\nQuality = {:0.3f}".format(self.x)
         self.stProps=stProps
+        #2
+        # Calculate other properties based on pressure and internal energy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        self.t = self.steamTable.t_pu(self.p, self.u)
+        self.h = self.steamTable.h_pu(self.p, self.u)
+        self.s = self.steamTable.s_pu(self.p, self.u)
+        self.v = self.steamTable.v_pu(self.p, self.u)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        # 3
+        # Calculate other properties based on pressure and enthalpy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        self.t = self.steamTable.t_ph(self.p, self.h)
+        self.u = self.steamTable.u_ph(self.p, self.h)
+        self.s = self.steamTable.s_ph(self.p, self.h)
+        self.v = self.steamTable.v_ph(self.p, self.h)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        # 4
+        # Calculate other properties based on pressure and entropy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.t = self.steamTable.t_ps(self.p, self.s)
+        self.u = self.steamTable.u_ps(self.p, self.s)
+        self.h = self.steamTable.h_ps(self.p, self.s)
+        self.v = self.steamTable.v_ps(self.p, self.s)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        # 5
+        # Calculate other properties based on pressure and specific volume
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.t = self.steamTable.t_pv(self.p, self.v)
+        self.u = self.steamTable.u_pv(self.p, self.v)
+        self.h = self.steamTable.h_pv(self.p, self.v)
+        self.s = self.steamTable.s_pv(self.p, self.v)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.stProps = stProps
+        # 6
+        # Calculate other properties based on pressure and quality
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nQuality = {:0.3f}".format(self.x)
+        self.t = self.steamTable.t_px(self.p, self.x)
+        self.u = self.steamTable.u_px(self.p, self.x)
+        self.h = self.steamTable.h_px(self.p, self.x)
+        self.s = self.steamTable.s_px(self.p, self.x)
+        self.v = self.steamTable.v_px(self.p, self.x)
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        # 7
+        # Calculate other properties based on temperature and internal energy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        self.p = self.steamTable.p_ut(self.u, self.t)
+        self.h = self.steamTable.h_ut(self.u, self.t)
+        self.s = self.steamTable.s_ut(self.u, self.t)
+        self.v = self.steamTable.v_ut(self.u, self.t)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        # 8
+        # Calculate other properties based on temperature and enthalpy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        self.p = self.steamTable.p_ht(self.h, self.t)
+        self.u = self.steamTable.u_ht(self.h, self.t)
+        self.s = self.steamTable.s_ht(self.h, self.t)
+        self.v = self.steamTable.v_ht(self.h, self.t)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        # 9
+        # Calculate other properties based on temperature and entropy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.p = self.steamTable.p_st(self.s, self.t)
+        self.u = self.steamTable.u_st(self.s, self.t)
+        self.h = self.steamTable.h_st(self.s, self.t)
+        self.v = self.steamTable.v_st(self.s, self.t)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        # 10
+        # finds other properties based on temperature and specific volume
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.p = self.steamTable.p_tv(self.t, self.v)
+        self.u = self.steamTable.u_tv(self.t, self.v)
+        self.h = self.steamTable.h_tv(self.t, self.v)
+        self.s = self.steamTable.s_tv(self.t, self.v)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.stProps = stProps
+        # 11
+        # Calculate other properties based on temperature and quality
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nQuality = {:0.3f}".format(self.x)
+        self.p = self.steamTable.p_tx(self.t, self.x)
+        self.u = self.steamTable.u_tx(self.t, self.x)
+        self.h = self.steamTable.h_tx(self.t, self.x)
+        self.s = self.steamTable.s_tx(self.t, self.x)
+        self.v = self.steamTable.v_tx(self.t, self.x)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        # 12
+        # Calculate other properties based on internal energy and enthalpy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        self.t = self.steamTable.t_uh(self.u, self.h)
+        self.p = self.steamTable.p_uh(self.u, self.h)
+        self.s = self.steamTable.s_uh(self.u, self.h)
+        self.v = self.steamTable.v_uh(self.u, self.h)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        # 13
+        # Calculate other properties based on internal energy and entropy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.t = self.steamTable.t_us(self.u, self.s)
+        self.p = self.steamTable.p_us(self.u, self.s)
+        self.h = self.steamTable.h_us(self.u, self.s)
+        self.v = self.steamTable.v_us(self.u, self.s)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        # 14
+        # Calculate other properties based on internal energy and specific volume
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.t = self.steamTable.t_uv(self.u, self.v)
+        self.p = self.steamTable.p_uv(self.u, self.v)
+        self.h = self.steamTable.h_uv(self.u, self.v)
+        self.s = self.steamTable.s_uv(self.u, self.v)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.stProps = stProps
+        # 15
+        # Calculate other properties based on internal energy and quality
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nQuality = {:0.3f}".format(self.x)
+        self.t = self.steamTable.t_ux(self.u, self.x)
+        self.p = self.steamTable.p_ux(self.u, self.x)
+        self.h = self.steamTable.h_ux(self.u, self.x)
+        self.s = self.steamTable.s_ux(self.u, self.x)
+        self.v = self.steamTable.v_ux(self.u, self.x)
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        # 16
+        # Calculate other properties based on enthalpy and entropy
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.t = self.steamTable.t_hs(self.h, self.s)
+        self.p = self.steamTable.p_hs(self.h, self.s)
+        self.u = self.steamTable.u_hs(self.h, self.s)
+        self.v = self.steamTable.v_hs(self.h, self.s)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        # 17
+        # Calculate other properties based on enthalpy and specific volume
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.t = self.steamTable.t_hv(self.h, self.v)
+        self.p = self.steamTable.p_hv(self.h, self.v)
+        self.u = self.steamTable.u_hv(self.h, self.v)
+        self.s = self.steamTable.s_hv(self.h, self.v)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.stProps = stProps
+        # 18
+        # Calculate other properties based on enthalpy and quality
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nQuality = {:0.3f}".format(self.x)
+        self.t = self.steamTable.t_hx(self.h, self.x)
+        self.p = self.steamTable.p_hx(self.h, self.x)
+        self.u = self.steamTable.u_hx(self.h, self.x)
+        self.s = self.steamTable.s_hx(self.h, self.x)
+        self.v = self.steamTable.v_hx(self.h, self.x)
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        # 19
+        # Calculate other properties based on entropy and specific volume
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.t = self.steamTable.t_sv(self.s, self.v)
+        self.p = self.steamTable.p_sv(self.s, self.v)
+        self.u = self.steamTable.u_sv(self.s, self.v)
+        self.h = self.steamTable.h_sv(self.s, self.v)
+        self.x = None  # Quality not applicable for this combination
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        self.stProps = stProps
+        # 20
+        # Calculate other properties based on entropy and quality
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        stProps += "\nQuality = {:0.3f}".format(self.x)
+        self.t = self.steamTable.t_sx(self.s, self.x)
+        self.p = self.steamTable.p_sx(self.s, self.x)
+        self.u = self.steamTable.u_sx(self.s, self.x)
+        self.h = self.steamTable.h_sx(self.s, self.x)
+        self.v = self.steamTable.v_sx(self.s, self.x)
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        self.stProps = stProps
+        # 21
+        # Calculate other properties based on specific volume and quality
+        self._lbl_State.setText("Region = {:}".format(self.region))
+        stProps = "\nSpecific Volume = {:0.3f} ({:})".format(self.v, self.v_Units)
+        stProps += "\nQuality = {:0.3f}".format(self.x)
+        self.t = self.steamTable.t_vx(self.v, self.x)
+        self.p = self.steamTable.p_vx(self.v, self.x)
+        self.u = self.steamTable.u_vx(self.v, self.x)
+        self.h = self.steamTable.h_vx(self.v, self.x)
+        self.s = self.steamTable.s_vx(self.v, self.x)
+        stProps += "\nTemperature = {:0.3f} ({:})".format(self.t, self.t_Units)
+        stProps += "\nPressure = {:0.3f} ({:})".format(self.p, self.p_Units)
+        stProps += "\nInternal Energy = {:0.3f} ({:})".format(self.u, self.u_Units)
+        stProps += "\nEnthalpy = {:0.3f} ({:})".format(self.h, self.h_Units)
+        stProps += "\nEntropy = {:0.3f} ({:})".format(self.s, self.s_Units)
+        self.stProps = stProps
 
     def calculateProperties(self):
         """
